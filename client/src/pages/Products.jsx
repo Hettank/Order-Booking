@@ -7,53 +7,6 @@ import axios from "axios";
 const user = JSON.parse(localStorage.getItem("user"));
 const API = import.meta.env.VITE_API_URL;
 
-const columns = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "Description",
-    dataIndex: "description",
-    key: "description",
-  },
-  {
-    title: "Price",
-    dataIndex: "price",
-    key: "price",
-    render: (price) => `$${price}`,
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: (text, record) =>
-      user.role === "admin" ? (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div className="btn-container">
-            <NavLink to={`/products/product-update`} state={record}>
-              <Button type="link" icon={<EditOutlined />} />
-            </NavLink>
-            <Button type="link" icon={<DeleteOutlined />} danger />
-          </div>
-          <div className="record-details">
-            <NavLink to={`/products/product-details`} state={record}>
-              <Button type="link" icon={<RightOutlined />} />
-            </NavLink>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div className="record-details">
-            <NavLink to={`/products/product-details`} state={record}>
-              <Button type="link" icon={<RightOutlined />} />
-            </NavLink>
-          </div>
-        </div>
-      ),
-  },
-];
-
 const Products = () => {
   const [products, setProducts] = useState([]);
 
@@ -61,7 +14,18 @@ const Products = () => {
     try {
       const response = await axios.get(`${API}/api/products`);
 
-      const productsWithKeys = response.data.map((product) => ({
+      const updatedProducts = response.data.map((product) => ({
+        ...product,
+        images: product.images.map(
+          (image) =>
+            `${API}/${image
+              .replace(/\\/g, "/")
+              .replace("public/", "")
+              .replace("uploads/", "uploads//")}`
+        ),
+      }));
+
+      const productsWithKeys = updatedProducts.map((product) => ({
         ...product,
         key: product.id,
       }));
@@ -72,9 +36,71 @@ const Products = () => {
     }
   };
 
+  console.log("products:", products);
+
+  const deleteProduct = async () => {
+    try {
+      const response = await axios.delete(`${API}/api/products/delete-product`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  const columns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (price) => `$${price}`,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) =>
+        user.role === "admin" ? (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div className="btn-container">
+              <NavLink to={`/products/product-update`} state={record}>
+                <Button type="link" icon={<EditOutlined />} />
+              </NavLink>
+              <Button
+                type="link"
+                icon={<DeleteOutlined />}
+                danger
+                onClick={deleteProduct}
+              />
+            </div>
+            <div className="record-details">
+              <NavLink to={`/products/product-details`} state={record}>
+                <Button type="link" icon={<RightOutlined />} />
+              </NavLink>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="record-details">
+              <NavLink to={`/products/product-details`} state={record}>
+                <Button type="link" icon={<RightOutlined />} />
+              </NavLink>
+            </div>
+          </div>
+        ),
+    },
+  ];
 
   return (
     <div className="product-container">

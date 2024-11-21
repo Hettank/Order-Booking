@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Card, Typography, Flex } from "antd";
+import { Form, Input, Button, Card, Typography, Flex, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -20,10 +20,13 @@ const Login = () => {
 
       if (response.status === 200) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        alert("Login Successful");
-        navigate("/products");
+        message.success("Login Successful");
+        navigate("/");
       }
     } catch (error) {
+      if (error.response && error.response.data.error) {
+        message.error("Invalid Credentials");
+      }
       console.log(error);
     }
   };

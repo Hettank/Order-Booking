@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Form, Input, Button, Card, Typography, Upload } from "antd";
+import React, { useEffect, useState } from "react";
+import { Form, Input, Button, Card, Typography, Upload, message } from "antd";
 import {
   UserOutlined,
   DollarOutlined,
@@ -22,14 +22,28 @@ const UpdateProduct = () => {
 
   const productData = location.state;
 
+  console.log(productData);
+
+  useEffect(() => {
+    if (productData && productData.images) {
+      const initialFileList = productData.images.map((image, index) => ({
+        uid: `${index}`,
+        name: `image-${index + 1}`,
+        status: "done",
+        url: image,
+      }));
+
+      setFileList(initialFileList);
+    }
+  }, [productData]);
+
   const onFinish = async (values) => {
     const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("description", values.description);
-    formData.append("price", values.price);
 
     fileList.forEach((file) => {
-      formData.append("images", file.originFileObj);
+      if (!file.url) {
+        formData.append("images", file.originFileObj);
+      }
     });
 
     try {
@@ -45,7 +59,7 @@ const UpdateProduct = () => {
       setFileList([]);
 
       if (response.status === 200) {
-        alert("Product Updated");
+        message.success("Product Updated Successfully");
         navigate("/products");
       }
     } catch (error) {
@@ -76,6 +90,7 @@ const UpdateProduct = () => {
             name: productData?.name,
             description: productData?.description,
             price: productData?.price,
+            images: fileList,
           }}
           style={{ marginTop: "1rem" }}
           layout="vertical"
@@ -84,47 +99,42 @@ const UpdateProduct = () => {
         >
           <Form.Item
             name="name"
-            rules={[{ required: true, message: "Title is required" }]}
-            label="Name"
+            label="Product Name"
+            rules={[
+              { required: true, message: "Please enter the product name" },
+            ]}
           >
-            <Input
-              prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
-              placeholder="Product Name"
-              size="large"
-              name="name"
-            />
+            <Input placeholder="Enter product name" />
           </Form.Item>
 
           <Form.Item
             name="description"
-            rules={[{ required: true, message: "Description is required!" }]}
             label="Description"
+            rules={[{ required: true, message: "Please enter a description" }]}
           >
-            <Input
-              prefix={<UserOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
-              placeholder="Product Description"
-              size="large"
-              name="description"
-            />
+            <Input.TextArea placeholder="Enter product description" />
           </Form.Item>
 
           <Form.Item
             name="price"
-            rules={[{ required: true, message: "Price is required!" }]}
             label="Price"
+            rules={[
+              { required: true, message: "Please enter the price" },
+              {
+                type: "number",
+                message: "Price must be a number",
+                transform: Number,
+              },
+            ]}
           >
-            <Input
-              prefix={<DollarOutlined style={{ color: "rgba(0,0,0,.25)" }} />}
-              placeholder="Price"
-              size="large"
-              name="price"
-            />
+            <Input placeholder="Enter product price" />
           </Form.Item>
 
           <Form.Item
             name="images"
             label="Upload Images"
             valuePropName="fileList"
+            getValueFromEvent={(e) => e.fileList}
             extra="Select one or multiple images"
           >
             <Upload
@@ -132,22 +142,14 @@ const UpdateProduct = () => {
               fileList={fileList}
               beforeUpload={() => false}
               multiple
+              onChange={({ fileList: newFileList }) => setFileList(newFileList)}
             >
               <Button icon={<UploadOutlined />}>Select Images</Button>
             </Upload>
           </Form.Item>
 
-          <Form.Item style={{ marginTop: "1.5rem" }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              size="large"
-              block
-              style={{
-                borderRadius: "8px",
-                fontWeight: "bold",
-              }}
-            >
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
               Update Product
             </Button>
           </Form.Item>

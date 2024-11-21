@@ -13,6 +13,9 @@ import ProductDetails from "./pages/ProductDetails";
 
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Bookings from "./pages/Bookings";
+import MyBookings from "./pages/MyBookings";
+import BookProduct from "./pages/BookProduct";
+import UpdateBooking from "./pages/UpdateBooking";
 
 function App() {
   return (
@@ -42,6 +45,9 @@ function App() {
               />
 
               <Route path="bookings" element={<Bookings />} />
+              <Route path="my-bookings" element={<MyBookings />} />
+              <Route path="book-product" element={<BookProduct />} />
+              <Route path="update-booking" element={<UpdateBooking />} />
             </Route>
           </Route>
         </Routes>

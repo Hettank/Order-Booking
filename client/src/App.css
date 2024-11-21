@@ -32,3 +32,15 @@
   display: flex;
   justify-content: space-between;
 }
+
+.active {
+  color: limegreen;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.inactive {
+  color: #ff3333;
+  font-weight: 600;
+  font-size: 1rem;
+}

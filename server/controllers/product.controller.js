@@ -10,6 +10,22 @@ const productController = {
         }
     },
 
+    getAvailableProducts: async (req, res) => {
+        try {
+            const { fromDate, toDate } = req.query;
+
+            if (!fromDate || !toDate) {
+                const products = await productService.getAllProducts()
+                return res.status(200).json(products);
+            }
+
+            const availableProducts = await productService.getAvailableProducts(fromDate, toDate);
+            res.status(200).json(availableProducts);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
     createProduct: async (req, res) => {
         try {
             const { name, description, price } = req.body
@@ -50,21 +66,38 @@ const productController = {
             await productService.deleteProduct(productId)
             res.status(200).json({ message: "Deleted Successfully" })
         } catch (error) {
-            res.status(200).json({ error: error.message })
+            const statusCode = error.message.includes("not found") ? 404 : 400;
+            res.status(statusCode).json({ error: error.message });
         }
     },
 
     bookProduct: async (req, res) => {
         try {
-            const { userId, productId } = req.params
+            const { userId } = req.params
 
-            const { fromDate, toDate, isActive } = req.body
+            const { fromDate, toDate, productName } = req.body
+            const productId = productName
 
-            const product = await productService.bookProduct(fromDate, toDate, isActive, userId, productId)
+            const product = await productService.bookProduct(fromDate, toDate, userId, productId)
 
             res.status(200).json({ product })
         } catch (error) {
-            res.status(200).json({ error: error.message })
+            return res.status(400).json({ error: error.message })
+        }
+    },
+
+    editBookProduct: async (req, res) => {
+        try {
+            const { userId } = req.params
+
+            const { fromDate, toDate, productName } = req.body
+            const productId = productName
+
+            const product = await productService.editBookProduct(fromDate, toDate, userId, productId)
+
+            res.status(200).json({ product })
+        } catch (error) {
+            return res.status(400).json({ error: error.message })
         }
     }
 }

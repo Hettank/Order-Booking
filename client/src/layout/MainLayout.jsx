@@ -26,6 +26,9 @@ const MainLayout = () => {
     "/": "Home",
     "/products": "Products",
     "/bookings": "Bookings",
+    "/my-bookings": "My Bookings",
+    "/book-product": "Book Product",
+    "/update-booking": "Update Booking",
     "/login": "Login",
     "/register": "Register",
     "/products/create-product": "Create Product",
@@ -78,20 +81,29 @@ const MainLayout = () => {
             gap: "10px",
           }}
           items={[
-            {
-              key: 1,
-              icon: <HomeFilled />,
-              label: <NavLink to="/">Home</NavLink>,
-            },
-            {
-              key: 2,
-              icon: <ProductFilled />,
-              label: <NavLink to="/products">Products</NavLink>,
-            },
+            // {
+            //   key: 1,
+            //   icon: <HomeFilled />,
+            //   label: <NavLink to="/">Home</NavLink>,
+            // },
+            ...(user.role === "admin"
+              ? [
+                  {
+                    key: 2,
+                    icon: <ProductFilled />,
+                    label: <NavLink to="/products">Products</NavLink>,
+                  },
+                ]
+              : []),
             {
               key: 3,
               icon: <BookOutlined />,
-              label: <NavLink to="/bookings">Bookings</NavLink>,
+              label:
+                user.role === "admin" ? (
+                  <NavLink to="/bookings">Bookings</NavLink>
+                ) : (
+                  <NavLink to="/my-bookings">My Bookings</NavLink>
+                ),
             },
           ]}
         />

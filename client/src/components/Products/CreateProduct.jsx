@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Card, Typography, Upload } from "antd";
+import { Form, Input, Button, Card, Typography, Upload, message } from "antd";
 import {
   UserOutlined,
   DollarOutlined,
@@ -36,6 +36,7 @@ const CreateProduct = () => {
       setFileList([]);
 
       if (response.status === 201) {
+        message.success("Product Created Successfully");
         navigate("/products");
       }
     } catch (error) {

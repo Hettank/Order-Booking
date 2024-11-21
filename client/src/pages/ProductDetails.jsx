@@ -1,13 +1,19 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Col, Row, Typography, Image, Button, Tag } from "antd";
 import { DollarCircleOutlined, CalendarOutlined } from "@ant-design/icons";
+
+import axios from "axios";
 
 const { Title, Text } = Typography;
 
 const API = import.meta.env.VITE_API_URL;
 
 const ProductDetails = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const [bookedProd, setBookedProd] = useState({});
+
   const location = useLocation();
   const productData = location.state || {};
 
@@ -15,10 +21,23 @@ const ProductDetails = () => {
     return <div>Product not found.</div>;
   }
 
-  console.log(productData);
+  const { id, name, description, price, images } = productData;
 
-  const { name, description, price, images, createdAt, updatedAt } =
-    productData;
+  const getBookingsByProd = async () => {
+    try {
+      const response = await axios.get(
+        `${API}/api/bookings/booking-by-prod/${id}`
+      );
+
+      setBookedProd(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getBookingsByProd();
+  }, []);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -28,7 +47,7 @@ const ProductDetails = () => {
         <Col xs={24} md={12}>
           <Card bordered={false} style={{ background: "#f7f7f7" }}>
             <Title level={3}>Product Images</Title>
-            <Row gutter={16}>
+            <Row gutter={[16, 16]}>
               {images.map((img, index) => (
                 <Col key={index} span={12}>
                   <Image
@@ -45,7 +64,10 @@ const ProductDetails = () => {
 
         <Col xs={24} md={12}>
           <Card bordered={false} style={{ background: "#f7f7f7" }}>
-            <Title level={3}>Product Details</Title>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Title level={3}>Product Details</Title>
+              <p style={{ fontWeight: "600" }}>Prod. ID: {id}</p>
+            </div>
             <Text strong>Description:</Text>
             <p>{description}</p>
 
@@ -58,30 +80,17 @@ const ProductDetails = () => {
                   ${price}
                 </Text>
               </Col>
-              <Col span={12}>
-                <Text strong>
-                  <CalendarOutlined /> Created At:
-                </Text>
-                <Text>{new Date(createdAt).toLocaleDateString()}</Text>
-              </Col>
             </Row>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Text strong>
-                  <CalendarOutlined /> Updated At:
-                </Text>
-                <Text>{new Date(updatedAt).toLocaleDateString()}</Text>
-              </Col>
-            </Row>
-
-            <div style={{ marginBlock: "20px" }}>
-              <Tag color="blue">Available</Tag>
-            </div>
-
-            <div>
-              <Button type="primary">Book Product</Button>
-            </div>
+            {bookedProd.isActive === true ? (
+              <Tag color="red" style={{ marginTop: "20px" }}>
+                Booked
+              </Tag>
+            ) : (
+              <Tag color="blue" style={{ marginTop: "20px" }}>
+                Available
+              </Tag>
+            )}
           </Card>
         </Col>
       </Row>

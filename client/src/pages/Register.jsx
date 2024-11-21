@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Card, Typography } from "antd";
+import { Form, Input, Button, Card, Typography, message } from "antd";
 import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -17,7 +17,7 @@ const Register = () => {
       const response = await axios.post(`${API}/api/auth/register`, values);
 
       if (response.status === 201) {
-        alert("Registration Successfull");
+        message.success("Registration Successful");
         navigate("/login");
       }
     } catch (error) {
